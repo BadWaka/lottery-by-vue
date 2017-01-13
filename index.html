@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <!--响应式-->
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>抽奖程序</title>
+    <!--Import Google Icon Font-->
+    <link href="http://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!--Import materialize.css-->
+    <link type="text/css" rel="stylesheet" href="css/materialize.css" media="screen,projection"/>
+    <style>
+        .flex-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 15px;
+        }
+
+        .card-view {
+
+        }
+
+        .btn {
+            width: 100%;
+        }
+    </style>
+</head>
+
+<body>
+
+<div id="app">
+
+    <!--toolbar-->
+    <nav>
+        <div class="nav-wrapper" style="background-color: #189D90">
+            <a href="" class="brand-logo left" style="font-size: 20px;margin-left: 10px">lottery</a>
+            <ul id="nav-mobile" class="right hide-on-med-and-down">
+            </ul>
+        </div>
+    </nav>
+
+    <!--card-->
+    <div class="row card-view">
+        <div class="col s12 m7" style="height: 100%">
+            <!--奖品列表下拉菜单-->
+            <button class="btn dropdown-button" style="margin-top: 10px" href="#!" data-activates="dropdown2">奖品列表<i
+                    class="mdi-navigation-arrow-drop-down right"></i></button>
+            <ul id="dropdown2" class="dropdown-content">
+                <li v-for="(item, index) in awardArray" v-on:click="changeAward(index)"><a href="#!">{{item}}</a></li>
+            </ul>
+            <!--卡片-->
+            <div class="card">
+                <div class="card-image">
+                    <img src="images/balloon2.png">
+                    <span class="card-title">{{award}}</span>
+                </div>
+                <div class="card-content">
+                    <div>ID:{{id}}</div>
+                    <div>NAME:{{name}}</div>
+                </div>
+                <div style="display: flex;justify-content: flex-end">
+                    <!--浮动按钮-->
+                    <a class="btn-floating btn-large waves-effect waves-light red" style="margin: 15px">
+                        <i v-if="isDrawing===false" class="material-icons" v-on:click="startDraw">play_arrow</i>
+                        <i v-if="isDrawing===true" class="material-icons" v-on:click="stopDraw">pause</i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Structure -->
+    <div id="modal1" class="modal">
+        <div class="modal-content">
+            <h4>恭喜 {{id}}-{{name}}!</h4>
+            <p>奖品是 {{award}}</p>
+        </div>
+        <div class="modal-footer">
+            <a href="#!" class=" modal-action modal-close waves-effect waves-green btn-flat"
+               v-on:click="cancelAward">取消</a>
+            <a href="#!" class=" modal-action modal-close waves-effect waves-green btn-flat" v-on:click="confirmAward">确定</a>
+        </div>
+    </div>
+
+</div>
+<script src="js/jquery-3.1.1.min.js"></script>
+<script src="js/materialize.min.js"></script>
+<script src="js/vue.js"></script>
+<script>
+
+    $(document).ready(function () {
+        // the "href" attribute of .modal-trigger must specify the modal ID that wants to be triggered
+        $('.modal').modal();
+    });
+
+    var app = new Vue({
+        el: '#app',
+        data: {
+            index: -1,       // 中奖人在数组中的index下标
+            id: '',      // 中奖人id
+            name: '',    // 中奖人姓名
+            isDrawing: false,    // 是否正在抽奖
+            timerId: '',     // 定时器id
+            award: '',       // 奖品
+            staffArray: [{
+                id: 'zy0878',
+                name: '王凯'
+            }, {
+                id: 'zy0315',
+                name: '李文'
+            }, {
+                id: 'zy0024',
+                name: '陈雪'
+            }, {
+                id: 'zy0842',
+                name: '李伟'
+            }, {
+                id: 'zy0623',
+                name: '佟鑫'
+            }, {
+                id: 'zy0855',
+                name: '刘亭亭'
+            }, {
+                id: 'zy0990',
+                name: '崔晓冲'
+            }, {
+                id: 'zy0864',
+                name: '赵宁'
+            }, {
+                id: 'zy0147',
+                name: '李文静'
+            }, {
+                id: 'zy0480',
+                name: '程秀娜'
+            }, {
+                id: 'zy0889',
+                name: '袁鹏鹏'
+            }, {
+                id: 'zy0281',
+                name: '刘鹰'
+            }, {
+                id: 'zy0808',
+                name: '王忠羿'
+            }, {
+                id: 'zy0933',
+                name: '陈还'
+            }, {
+                id: 'zy0950',
+                name: '梁轩'
+            }, {
+                id: 'zy0520',
+                name: '李红格'
+            }, {
+                id: 'zy0268',
+                name: '王雪'
+            }, {
+                id: 'zy0452',
+                name: '田金湘'
+            }, {
+                id: 'zy0419',
+                name: '庞冕'
+            }, {
+                id: 'zy0287',
+                name: '王俊鹏'
+            }, {
+                id: 'zy0667',
+                name: '张未檬'
+            }, {
+                id: 'zy0787',
+                name: '李志光'
+            }, {
+                id: 'zy0420',
+                name: '钟晨浩'
+            }, {
+                id: 'zy0760',
+                name: '胡古月'
+            }, {
+                id: 'zy0118',
+                name: '张颖慧'
+            }, {
+                id: 'zy0433',
+                name: '贾玉丹'
+            }, {
+                id: 'zy0849',
+                name: '夏爱阁'
+            }, {
+                id: 'zy0042',
+                name: '方洪鑫'
+            }, {
+                id: 'zy0062',
+                name: '石倩'
+            }, {
+                id: 'zy0045',
+                name: '徐克明'
+            }, {
+                id: 'zy0113',
+                name: '牛为佳'
+            }, {
+                id: 'zy0172',
+                name: '杨庆'
+            }, {
+                id: 'zy0736',
+                name: '周苗苗'
+            }, {
+                id: 'zy0921',
+                name: '高久兵'
+            }, {
+                id: 'zy1020',
+                name: '张瑞'
+            }, {
+                id: 'zy0349',
+                name: '王雨薇'
+            }, {
+                id: 'zy0225',
+                name: '陈华南'
+            }, {
+                id: 'zy0401',
+                name: '杨世强'
+            }, {
+                id: 'zy0785',
+                name: '冉军军'
+            }],
+            awardArray: [
+                '微波炉',
+                '烤面包机',
+                '帐篷',
+                '山地自行车',
+                '300元现金',
+                '500元现金',
+                '1000元现金',
+                '2000元现金',
+                '4000元现金',
+                '5000元现金',
+                '6000元现金',
+                'MacBook Pro'
+            ]
+        },
+        methods: {
+            // 选择奖品
+            changeAward: function (index) {
+                console.log(index);
+                this.award = this.awardArray[index];
+                localStorage.award = this.award;
+            },
+            // 开始抽奖
+            startDraw: function () {
+                if (this.award === '') {
+                    Materialize.toast('请选择奖品!', 2000);
+                    return;
+                }
+                this.isDrawing = true;
+                const self = this;
+                this.timerId = setInterval(function () {
+                    self.drawNotRemove();
+                }, 50);
+            },
+            // 抽奖后不删除
+            drawNotRemove: function () {
+                // 获得随机数，该随机数是职员数组的下标
+                var randomNum = Math.floor(Math.random() * this.staffArray.length);
+                // 获得中奖人信息
+                var theChoosenOne = this.staffArray[randomNum];
+                if (theChoosenOne) {
+                    this.index = randomNum;
+                    this.id = theChoosenOne.id;
+                    this.name = theChoosenOne.name;
+                } else {
+                    this.index = -1;
+                    this.id = '';
+                    this.name = '';
+                }
+            },
+            // 停止抽奖
+            stopDraw: function () {
+                this.isDrawing = false;
+                clearInterval(this.timerId);
+                localStorage.id = this.id;
+                this.openModal();
+            },
+            // 从数组中移除中奖人
+            removeTheChoosenStaff: function () {
+                this.staffArray.splice(this.index, 1);
+                console.log(JSON.stringify(this.staffArray));
+                Materialize.toast(this.name + '已从待抽奖名单中移除', 2000);
+                this.index = -1;
+                this.id = '';
+                this.name = '';
+            },
+            // 打开提示框
+            openModal: function () {
+                $('#modal1').modal('open');
+            },
+            // 确认该次抽奖
+            confirmAward: function () {
+                this.removeTheChoosenStaff();
+            },
+            // 取消该次抽奖
+            cancelAward: function () {
+                Materialize.toast('该次抽奖已取消', 2000);
+                this.index = -1;
+                this.id = '';
+                this.name = '';
+            }
+        }
+    });
+
+</script>
+</body>
+</html>
